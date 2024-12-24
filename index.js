@@ -1,3 +1,4 @@
+import express from 'express'; // Import Express
 import qrcode from 'qrcode-terminal';
 import whatsappWeb from 'whatsapp-web.js';
 import fs from 'fs';
@@ -7,16 +8,17 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const { Client, LocalAuth } = whatsappWeb; 
+const { Client, LocalAuth } = whatsappWeb;
 
 const client = new Client({
     authStrategy: new LocalAuth({
-        dataPath: './session' 
+        dataPath: './session'
     })
 });
 
 const participantsFilePath = path.join(__dirname, 'participants.json');
 
+// Load and save participants (unchanged)
 const loadParticipants = () => {
     if (fs.existsSync(participantsFilePath)) {
         const data = fs.readFileSync(participantsFilePath);
@@ -29,25 +31,39 @@ const saveParticipants = (participants) => {
     fs.writeFileSync(participantsFilePath, JSON.stringify(participants, null, 2));
 };
 
+// Set up Express to listen on dynamic port (required by Render)
+const app = express();
+const port = process.env.PORT || 3000; // Render sets the PORT environment variable
+
+app.get('/', (req, res) => {
+    res.send('WhatsApp Bot is Running');
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
+
+// WhatsApp bot event handlers (unchanged)
 client.on('qr', (qr) => {
     console.log('Scan this QR code with WhatsApp:');
-    qrcode.generate(qr, { small: true }); 
+    qrcode.generate(qr, { small: true });
 });
 
 client.on('ready', async () => {
     console.log('WhatsApp Web is now ready!');
-    const botNumber = client.info.wid._serialized; 
+    const botNumber = client.info.wid._serialized;
     console.log(`Bot Number: ${botNumber}`);
     loadPlugins();
 });
 
+// Handle messages, group events, and plugin loading (unchanged)
 client.on('message', async (message) => {
-    const senderNumber = message.from.includes('@g.us') 
-        ? message.author 
-        : message.from;  
-    const groupName = message.from.includes('@g.us') 
-        ? (await message.getChat()).name 
-        : 'Direct Message'; 
+    const senderNumber = message.from.includes('@g.us')
+        ? message.author
+        : message.from;
+    const groupName = message.from.includes('@g.us')
+        ? (await message.getChat()).name
+        : 'Direct Message';
 
     console.log('-----------------------------');
     console.log(`Group: ${groupName}`);
@@ -64,12 +80,12 @@ const loadPlugins = () => {
         const pluginPath = path.join(pluginFolder, pluginFile);
 
         try {
-            const plugin = await import(`file://${pluginPath}`); 
+            const plugin = await import(`file://${pluginPath}`);
             console.log(`Loaded plugin: ${pluginFile}`);
 
             client.on('message', (message) => {
                 try {
-                    plugin.default(message, client); 
+                    plugin.default(message, client);
                 } catch (err) {
                     console.error(`Error in plugin ${pluginFile}:`, err.message);
                 }
@@ -89,10 +105,11 @@ fs.watch(path.join(__dirname, 'plugins'), (eventType, filename) => {
     }
 });
 
+// Group join/leave event handlers (unchanged)
 client.on('group_join', async (notification) => {
     try {
         console.log('Group Join Notification:', notification);
-        const participants = loadParticipants(); 
+        const participants = loadParticipants();
         const newParticipant = notification.id.participant;
 
         if (newParticipant && !participants.joined.includes(newParticipant)) {
@@ -116,7 +133,7 @@ client.on('group_leave', async (notification) => {
         
         const leftParticipant = notification.id.participant;
         
-        const participants = loadParticipants(); 
+        const participants = loadParticipants();
 
         if (leftParticipant && participants.joined.includes(leftParticipant)) {
             const group = await client.getChatById(notification.chatId);
@@ -136,4 +153,5 @@ client.on('group_leave', async (notification) => {
 
 client.initialize();
 
+// Prevent process from exiting
 setInterval(() => {}, 1000);
