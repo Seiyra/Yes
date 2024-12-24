@@ -1,16 +1,17 @@
 {
-  "name": "yes",
+  "name": "elta-bot",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "bailey": "^0.0.17",
+    "chalk": "^4.1.0",
+    "chokidar": "^3.5.2",
+    "fs-extra": "^10.0.0",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.26.0"
-  }
+    "whatsapp-web.js": "^1.0.0"
+  },
+  "type": "module"
 }

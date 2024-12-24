@@ -1,0 +1,49 @@
+# Node modules
+node_modules/
+
+# Ignore Puppeteer Chromium binaries and related files
+node_modules/puppeteer/
+node_modules/puppeteer-core/
+.local-chromium/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript v1 declaration files
+typings/
+
+# IDE/Editor directories
+.vscode/
+.idea/
+
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Linux system files
+*.swp
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build output
+/dist
+/build
+
+# Coverage directory used by tools like istanbul
+/coverage
+
+# Ignore any specific local configuration files or folders
+/.idea
+/.vscode
