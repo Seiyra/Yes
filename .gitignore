@@ -1,5 +1,4 @@
 # Ignore temporary/cache files
 .wwebjs_cache/
-plugins/
 messageCounts.json/
 *.json
